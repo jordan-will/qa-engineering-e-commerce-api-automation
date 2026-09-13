@@ -1,5 +1,5 @@
 import pytest
-from config.settings import settings
+from config import settings
 
 def test_valid_environment():
     settings.validate_environment()
