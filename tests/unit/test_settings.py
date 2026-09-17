@@ -15,7 +15,7 @@ def test_invalid_environment():
         settings.ENVIRONMENT = original_environment
 
 def test_default_settings():
-    assert settings.BASE_URL == "https://api.example.com"
+    assert settings.BASE_URL == "https://dummyjson.com"
     assert settings.REQUEST_TIMEOUT == 5
     assert settings.ENVIRONMENT == "dev"
 
