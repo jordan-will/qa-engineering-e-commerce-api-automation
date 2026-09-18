@@ -1,16 +1,32 @@
 from unittest.mock import Mock
 from src.clients.user_client import UserClient
+from src.models.user import User
 
 def test_get_user():
     client = UserClient()
 
     mock_response = Mock()
-    client.get = Mock(return_value=mock_response)
+    mock_response.json.return_value = {
+        "id" :  1,
+        "firstName" : "John",
+        "lastName" : "Doe",
+        "email" : "john@example.com",
+        "password" : "secret123"
+    }
 
-    response = client.get_user(1)
+    client.get = Mock(return_value=mock_response)
+    client.handle_response = Mock(return_value=mock_response)
+
+    user = client.get_user(1)
 
     client.get.assert_called_once_with("/users/1")
-    assert response == mock_response
+    client.handle_response.assert_called_once_with(mock_response)
+
+    assert isinstance(user, User)
+    assert user.id == 1
+    assert user.name == "John Doe"
+    assert user.email == "john@example.com"
+    assert user.password == "secret123"
 
 def test_create_user():
     client = UserClient()
@@ -63,3 +79,22 @@ def test_delete_user():
     client.delete.assert_called_once_with("/users/1")
 
     assert response == mock_response
+
+def test_to_user():
+    client = UserClient()
+
+    data = {
+        "id":1,
+        "firstName" : "John",
+        "lastName" : "Doe",
+        "email" : "john@example.com",
+        "password" : "secret123"
+    }
+
+    user = client.to_user(data)
+
+    assert isinstance(user, User)
+    assert user.id == 1
+    assert user.name == "John Doe"
+    assert user.email == "john@example.com"
+    assert user.password == "secret123"
