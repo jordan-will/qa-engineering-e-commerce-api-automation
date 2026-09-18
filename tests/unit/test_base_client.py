@@ -1,5 +1,6 @@
 from unittest.mock import Mock
 from src.clients.base_client import BaseClient
+import pytest
 
 def test_get():
     client = BaseClient()
@@ -10,7 +11,8 @@ def test_get():
 
     client.session.get.assert_called_once_with(
         "https://dummyjson.com/products",
-        timeout=5
+        timeout=5,
+        headers={}
     )
 
 def test_post():
@@ -25,9 +27,9 @@ def test_post():
     client.session.post.assert_called_once_with(
         "https://dummyjson.com/products/add",
         timeout=5,
-        json=payload
+        json=payload,
+        headers={}
     )
-
 
 def test_put():
     client = BaseClient()
@@ -41,7 +43,8 @@ def test_put():
     client.session.put.assert_called_once_with(
         "https://dummyjson.com/products/1",
         timeout=5,
-        json=payload
+        json=payload,
+        headers={}
     )
 
 def test_delete():
@@ -53,5 +56,54 @@ def test_delete():
 
     client.session.delete.assert_called_once_with(
         "https://dummyjson.com/products/1",
-        timeout=5
+        timeout=5,
+        headers={}
     )
+
+def test_get_headers_without_token():
+    client = BaseClient()
+
+    headers = client.get_headers()
+
+    assert headers == {}
+
+def test_get_headers_with_token():
+    client = BaseClient(token="test-token")
+
+    headers = client.get_headers()
+
+    assert headers == {
+        "Authorization" : "Bearer test-token"
+    }
+
+def test_get_headers_with_and_custom_token():
+    client = BaseClient(token="test-token")
+
+    headers = client.get_headers({
+        "Content-Type" : "application/json"
+    })
+
+    assert headers == {
+        "Authorization" : "Bearer test-token",
+        "Content-Type" : "application/json"
+    }
+
+def test_handle_response():
+    client = BaseClient()
+
+    response = Mock()
+
+    result = client.handle_response(response)
+
+    response.raise_for_status.assert_called_once_with()
+
+    assert result == response
+
+def test_handle_response_raises_error():
+    client = BaseClient()
+
+    response = Mock()
+    response.raise_for_status.side_effect = Exception("HTTP error")
+
+    with pytest.raises(Exception, match="HTTP error"):
+        client.handle_response(response)
