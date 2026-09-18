@@ -13,9 +13,11 @@ class OrderClient(BaseClient):
     }
 
     def create_order(self, order_data):
+        payload = self.to_api_payload(order_data)
+
         return self.post(
             "/carts/add",
-            json=order_data
+            json=payload,
         )
 
     def get_order(self, order_id):
@@ -35,3 +37,14 @@ class OrderClient(BaseClient):
             total=data["total"],
             status="retrieved"
         )
+
+    def to_api_payload(self, order_data):
+        return {
+            "userId": order_data["user_id"],
+            "products": [
+                {
+                    "id": order_data["product_id"],
+                    "quantity": order_data["quantity"],
+                }
+            ],
+        }
