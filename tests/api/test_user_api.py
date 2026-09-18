@@ -1,14 +1,9 @@
 from src.clients.user_client import UserClient
-from src.utils.data_loader import load_json
 
 
-def test_create_user_with_test_data():
-    users = load_json("tests/data/users.json")
+def test_create_user_with_test_data(user_client, users_data):
+    user_data = users_data[0]
 
-    user_data = users[0]
-
-    client = UserClient()
-
-    response = client.create_user(user_data)
+    response = user_client.create_user(user_data)
 
     assert response.status_code == 201
